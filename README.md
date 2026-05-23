@@ -357,3 +357,6 @@ See [CHANGELOG.md](CHANGELOG.md) for version history and updates.
 ## License
 
 [MIT](LICENSE.md)
+
+## Reference
+[LINUX DO - 新的理想型社区](https://linux.do/)
