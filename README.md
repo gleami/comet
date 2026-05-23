@@ -68,7 +68,7 @@ comet init
 > [!TIP]
 > update version
 >
-> comet update or `npm install -g @rpamis/comet@latest` to get the latest features and fixes.
+> `comet update` or `npm install -g @rpamis/comet@latest` to get the latest features and fixes.
 
 ## Screenshots
 
