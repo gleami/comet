@@ -178,6 +178,55 @@ async function ensureOpenSpecCli(scope: InstallScope, projectPath: string): Prom
   }
 }
 
+function migrateOpenCodeOpenSpecPaths(homeDir: string): void {
+  const opencodePlatform = PLATFORMS.find((p) => p.id === 'opencode');
+  if (!opencodePlatform?.globalSkillsDir) return;
+
+  // OpenSpec hardcodes skillsDir as '.opencode' in its AI_TOOLS, so it writes
+  // to ~/.opencode/ even for global installs. OpenCode actually reads from
+  // ~/.config/opencode/ (Comet's globalSkillsDir). Move the files over.
+  const wrongDir = path.join(homeDir, opencodePlatform.skillsDir);
+  const correctDir = path.join(homeDir, opencodePlatform.globalSkillsDir);
+
+  const migrations: Array<[string, string, string]> = [
+    [path.join(wrongDir, 'skills'), path.join(correctDir, 'skills'), 'skills'],
+    [path.join(wrongDir, 'commands'), path.join(correctDir, 'commands'), 'commands'],
+  ];
+
+  for (const [srcDir, destDir, label] of migrations) {
+    if (srcDir === destDir) continue;
+    if (!fs.existsSync(srcDir)) continue;
+    try {
+      const entries = fs.readdirSync(srcDir);
+      if (entries.length === 0) continue;
+
+      fs.mkdirSync(destDir, { recursive: true });
+      for (const entry of entries) {
+        const srcPath = path.join(srcDir, entry);
+        const destPath = path.join(destDir, entry);
+        fs.cpSync(srcPath, destPath, { recursive: true, force: true });
+      }
+      fs.rmSync(srcDir, { recursive: true, force: true });
+    } catch (error) {
+      console.error(
+        `    Warning: failed to migrate OpenSpec ${label} from ${srcDir} to ${destDir}: ${(error as Error).message}`,
+      );
+    }
+  }
+
+  // Remove wrong parent directory if both skills and commands have been migrated
+  if (fs.existsSync(wrongDir)) {
+    try {
+      const remaining = fs.readdirSync(wrongDir);
+      if (remaining.length === 0) {
+        fs.rmdirSync(wrongDir);
+      }
+    } catch {
+      // Best-effort cleanup
+    }
+  }
+}
+
 async function installOpenSpec(
   projectPath: string,
   toolIds: string[],
@@ -212,6 +261,11 @@ async function installOpenSpec(
       timeout: 120_000,
       shell: process.platform === 'win32',
     });
+
+    if (scope === 'global' && toolIds.includes('opencode')) {
+      migrateOpenCodeOpenSpecPaths(os.homedir());
+    }
+
     return 'installed';
   } catch (error) {
     console.error(`    OpenSpec init failed: ${(error as Error).message}`);
@@ -225,4 +279,10 @@ async function installOpenSpec(
   }
 }
 
-export { installOpenSpec, isCommandAvailable, buildOpenSpecInitInvocation, getNpmExecutable };
+export {
+  installOpenSpec,
+  isCommandAvailable,
+  buildOpenSpecInitInvocation,
+  getNpmExecutable,
+  migrateOpenCodeOpenSpecPaths,
+};

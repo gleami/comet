@@ -230,7 +230,12 @@ describe('openspec', () => {
         args: ['init', '/home/test user', '--tools', 'codex', '--profile', 'custom'],
       });
       expect(
-        buildOpenSpecInitInvocation('D:\\Project\\Comet', ['codex'], 'global', 'C:\\Users\\Test User'),
+        buildOpenSpecInitInvocation(
+          'D:\\Project\\Comet',
+          ['codex'],
+          'global',
+          'C:\\Users\\Test User',
+        ),
       ).toEqual({
         command: 'openspec',
         args: ['init', 'C:\\Users\\Test User', '--tools', 'codex', '--profile', 'custom'],
@@ -241,7 +246,12 @@ describe('openspec', () => {
       const { buildOpenSpecInitInvocation } = await import('../../src/core/openspec.js');
 
       expect(
-        buildOpenSpecInitInvocation('/tmp/project', ['future tool', 'codex'], 'project', '/home/user'),
+        buildOpenSpecInitInvocation(
+          '/tmp/project',
+          ['future tool', 'codex'],
+          'project',
+          '/home/user',
+        ),
       ).toEqual({
         command: 'openspec',
         args: ['init', '/tmp/project', '--tools', 'future tool,codex', '--profile', 'custom'],
@@ -315,6 +325,59 @@ describe('openspec', () => {
       expect(result).toBe('failed');
       expect(errorSpy).toHaveBeenCalledWith(expect.stringContaining('Process timed out'));
       errorSpy.mockRestore();
+    });
+
+    it('merges with existing content in ~/.config/opencode/ without overwrite errors', async () => {
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'comet-migrate-test-'));
+      const fakeHome = path.join(tmpDir, 'home');
+      const wrongSkillsDir = path.join(fakeHome, '.opencode', 'skills');
+      const correctSkillsDir = path.join(fakeHome, '.config', 'opencode', 'skills');
+
+      fs.mkdirSync(path.join(correctSkillsDir, 'comet'), { recursive: true });
+      fs.writeFileSync(path.join(correctSkillsDir, 'comet', 'SKILL.md'), 'comet skill');
+
+      fs.mkdirSync(path.join(wrongSkillsDir, 'openspec-propose'), { recursive: true });
+      fs.writeFileSync(path.join(wrongSkillsDir, 'openspec-propose', 'SKILL.md'), 'propose skill');
+
+      const { migrateOpenCodeOpenSpecPaths } = await import('../../src/core/openspec.js');
+      migrateOpenCodeOpenSpecPaths(fakeHome);
+
+      expect(fs.readFileSync(path.join(correctSkillsDir, 'comet', 'SKILL.md'), 'utf-8')).toBe(
+        'comet skill',
+      );
+      expect(
+        fs.readFileSync(path.join(correctSkillsDir, 'openspec-propose', 'SKILL.md'), 'utf-8'),
+      ).toBe('propose skill');
+
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('handles errors gracefully when source directory is a file instead of a directory', async () => {
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'comet-migrate-test-'));
+      const fakeHome = path.join(tmpDir, 'home');
+
+      fs.mkdirSync(path.join(fakeHome, '.opencode'), { recursive: true });
+      fs.writeFileSync(path.join(fakeHome, '.opencode', 'skills'), 'this is a file, not a dir');
+
+      const { migrateOpenCodeOpenSpecPaths } = await import('../../src/core/openspec.js');
+      expect(() => migrateOpenCodeOpenSpecPaths(fakeHome)).not.toThrow();
+
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    });
+
+    it('integrates with installOpenSpec for global scope with opencode tool', async () => {
+      mockedExecFileSync.mockReturnValue(Buffer.from('/usr/bin/openspec'));
+      mockedExecFileSync.mockReturnValue(Buffer.from('ok'));
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'comet-install-test-'));
+      const homedirSpy = vi.spyOn(os, 'homedir').mockReturnValue(tmpDir);
+
+      const { installOpenSpec } = await import('../../src/core/openspec.js');
+      const result = await installOpenSpec('/tmp/test', ['opencode', 'claude'], 'global');
+
+      expect(result).toBe('installed');
+
+      homedirSpy.mockRestore();
+      fs.rmSync(tmpDir, { recursive: true, force: true });
     });
   });
 });
