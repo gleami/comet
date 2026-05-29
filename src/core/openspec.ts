@@ -261,6 +261,11 @@ async function installOpenSpec(
       timeout: 120_000,
       shell: process.platform === 'win32',
     });
+
+    if (scope === 'global' && toolIds.includes('opencode')) {
+      migrateOpenCodeOpenSpecPaths(os.homedir());
+    }
+
     return 'installed';
   } catch (error) {
     console.error(`    OpenSpec init failed: ${(error as Error).message}`);
@@ -274,10 +279,10 @@ async function installOpenSpec(
   }
 }
 
-export { installOpenSpec,
+export {
+  installOpenSpec,
   isCommandAvailable,
   buildOpenSpecInitInvocation,
   getNpmExecutable,
-  buildOpenSpecInitCommand,
-  quoteShellArg
+  migrateOpenCodeOpenSpecPaths,
 };
