@@ -273,4 +273,10 @@ async function installOpenSpec(
   }
 }
 
-export { installOpenSpec, isCommandAvailable, buildOpenSpecInitCommand, quoteShellArg, migrateOpenCodeOpenSpecPaths };
+export {
+  installOpenSpec,
+  isCommandAvailable,
+  buildOpenSpecInitCommand,
+  quoteShellArg,
+  migrateOpenCodeOpenSpecPaths,
+};
