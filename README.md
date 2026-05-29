@@ -28,13 +28,13 @@
 ```
 
 > 中文版：[README-zh.md](README-zh.md)
-> [B站视频介绍](https://www.bilibili.com/video/BV1y4Gi6CEo1/?spm_id_from=333.1387.homepage.video_card.click&vd_source=d22726fe6b108647dbebf1c5d8817377)
+> [Bilibili video](https://www.bilibili.com/video/BV1y4Gi6CEo1/?spm_id_from=333.1387.homepage.video_card.click&vd_source=d22726fe6b108647dbebf1c5d8817377)
 
 **OpenSpec + Superpowers dual-star development workflow** — one command from idea to archive.
 
-OpenSpec handles **WHAT** (outlines, proposals, spec lifecycle, archiving). 
+OpenSpec handles **WHAT** (outlines, proposals, spec lifecycle, archiving).
 
-Superpowers handles **HOW** (technical design, planning, execution, wrap-up). 
+Superpowers handles **HOW** (technical design, planning, execution, wrap-up).
 
 Comet chains both into a five-phase automated pipeline.
 
@@ -46,7 +46,7 @@ Superpowers generates Spec documents after brainstorming, but these documents ty
 
 **Comet combines the strengths of both**, integrating the core workflow into 5 phases
 
-The main entry `/comet` supports current Spec state detection, suitable for long tasks — after completing and closing CC midway, just `/comet continue` and Comet will automatically read the active Spec (lists multiple for selection), dynamically identify which phase is currently executing, and continue.
+The main entry `/comet` supports current Spec state detection, suitable for long tasks — after closing your AI coding session midway, just `/comet` and Comet will automatically read the active Spec (lists multiple for selection), dynamically identify which phase is currently executing, and continue.
 
 At the same time, Comet provides full Spec lifecycle management. During execution, it links OpenSpec change/spec artifacts with Superpowers design and planning documents, then automates handoff, state updates, validation, and archive sync so users do not have to repeatedly remind the Agent to keep documents synchronized and connected.
 
@@ -71,6 +71,13 @@ Long-term Skill users know these capabilities can be freely combined, but exactl
 - **How to turn shell scripts into Agent workflow infrastructure** — Comet's scripts need to work across macOS, Linux, and Windows Git Bash while handling hashes, YAML fields, state machines, and archive flows. It shows how to move fragile workflow control out of scattered Prompt text and into testable, reusable tools.
 
 ## Install
+
+Requirements:
+
+- Node.js 20+
+- npm/npx
+- Git
+- Bash-compatible shell for workflow scripts (Windows users should use Git Bash or an equivalent bash environment)
 
 ```bash
 npm install -g @rpamis/comet
@@ -100,6 +107,8 @@ comet init
 
 ## Support for OpenClaw and Hermes, and other AI platforms
 
+For platforms that use the generic `skills` CLI directly, you can install the Comet skill package with:
+
 ```bash
 npx skills add rpamis/comet
 ```
@@ -120,13 +129,13 @@ npx skills add rpamis/comet
 
 Initializes OpenSpec, Superpowers, and Comet skills for selected AI coding platforms.
 
-| Option | Description |
-|--------|-------------|
-| `--yes` | Non-interactive mode, auto-select detected platforms (or all if none detected) |
-| `--scope <scope>` | Install scope: `project` or `global` |
-| `--skip-existing` | Skip already installed components |
-| `--overwrite` | Overwrite already installed components |
-| `--json` | Output structured JSON |
+| Option            | Description                                                                    |
+| ----------------- | ------------------------------------------------------------------------------ |
+| `--yes`           | Non-interactive mode, auto-select detected platforms (or all if none detected) |
+| `--scope <scope>` | Install scope: `project` or `global`                                           |
+| `--skip-existing` | Skip already installed components                                              |
+| `--overwrite`     | Overwrite already installed components                                         |
+| `--json`          | Output structured JSON                                                         |
 
 When multiple existing components are found on the same platform, interactive init offers one bulk choice: overwrite all, skip all, or choose per component.
 
@@ -137,8 +146,8 @@ When multiple existing components are found on the same platform, interactive in
 
 Displays active changes, task progress, and the recommended next Comet workflow command.
 
-| Option | Description |
-|--------|-------------|
+| Option   | Description                              |
+| -------- | ---------------------------------------- |
 | `--json` | Output active changes with `nextCommand` |
 
 </details>
@@ -148,9 +157,9 @@ Displays active changes, task progress, and the recommended next Comet workflow 
 
 Checks project/global installation health, working directories, installed skills, scripts, and Comet state files.
 
-| Option | Description |
-|--------|-------------|
-| `--json` | Output structured diagnostic results |
+| Option            | Description                                                     |
+| ----------------- | --------------------------------------------------------------- |
+| `--json`          | Output structured diagnostic results                            |
 | `--scope <scope>` | Diagnose `auto`, `project`, or `global` scope (default: `auto`) |
 
 </details>
@@ -160,17 +169,17 @@ Checks project/global installation health, working directories, installed skills
 
 Updates the npm package and refreshes installed Comet skills in detected project/global targets.
 
-| Option | Description |
-|--------|-------------|
-| `--json` | Output npm and skill update results as JSON |
+| Option              | Description                                   |
+| ------------------- | --------------------------------------------- |
+| `--json`            | Output npm and skill update results as JSON   |
 | `--language <lang>` | Override detected skill language (`en`, `zh`) |
-| `--scope <scope>` | Update only `global` or `project` scope |
+| `--scope <scope>`   | Update only `global` or `project` scope       |
 
 </details>
 
-| Command | Description |
-|---------|-------------|
-| `comet --help` | Show help |
+| Command           | Description  |
+| ----------------- | ------------ |
+| `comet --help`    | Show help    |
 | `comet --version` | Show version |
 
 ## Supported Platforms
@@ -180,24 +189,26 @@ Updates the npm package and refreshes installed Comet skills in detected project
 <details>
 <summary>View full platform list</summary>
 
-| Platform | Skills Dir | Platform | Skills Dir |
-|----------|-----------|----------|-----------|
-| Claude Code | `.claude/` | Cursor | `.cursor/` |
-| Codex | `.codex/` | OpenCode | `.opencode/` |
-| Windsurf | `.windsurf/` | Cline | `.cline/` |
-| RooCode | `.roo/` | Continue | `.continue/` |
-| GitHub Copilot | `.github/` | Gemini CLI | `.gemini/` |
-| Amazon Q Developer | `.amazonq/` | Qwen Code | `.qwen/` |
-| Kilo Code | `.kilocode/` | Auggie | `.augment/` |
-| Kiro | `.kiro/` | Lingma | `.lingma/` |
-| Junie | `.junie/` | CodeBuddy | `.codebuddy/` |
-| CoStrict | `.cospec/` | Crush | `.crush/` |
-| Factory Droid | `.factory/` | iFlow | `.iflow/` |
-| Pi | `.pi/` | Qoder | `.qoder/` |
-| Antigravity | `.agents/` | Bob Shell | `.bob/` |
-| ForgeCode | `.forge/` | Trae | `.trae/` |
+| Platform           | Skills Dir   | Platform   | Skills Dir    |
+| ------------------ | ------------ | ---------- | ------------- |
+| Claude Code        | `.claude/`   | Cursor     | `.cursor/`    |
+| Codex              | `.codex/`    | OpenCode   | `.opencode/`  |
+| Windsurf           | `.windsurf/` | Cline      | `.cline/`     |
+| RooCode            | `.roo/`      | Continue   | `.continue/`  |
+| GitHub Copilot     | `.github/`   | Gemini CLI | `.gemini/`    |
+| Amazon Q Developer | `.amazonq/`  | Qwen Code  | `.qwen/`      |
+| Kilo Code          | `.kilocode/` | Auggie     | `.augment/`   |
+| Kiro               | `.kiro/`     | Lingma     | `.lingma/`    |
+| Junie              | `.junie/`    | CodeBuddy  | `.codebuddy/` |
+| CoStrict           | `.cospec/`   | Crush      | `.crush/`     |
+| Factory Droid      | `.factory/`  | iFlow      | `.iflow/`     |
+| Pi                 | `.pi/`       | Qoder      | `.qoder/`     |
+| Antigravity        | `.agents/`   | Bob Shell  | `.bob/`       |
+| ForgeCode          | `.forge/`    | Trae       | `.trae/`      |
 
 </details>
+
+Some platforms use different project and global directories. For example, OpenCode global installs use `.config/opencode`, Lingma global installs use `.lingma`, and Antigravity global installs use `.gemini/antigravity`.
 
 ## Skills
 
@@ -208,16 +219,16 @@ After `comet init`, three groups of skills are installed to the selected platfor
 <details>
 <summary>View Comet skills</summary>
 
-| Skill | Description |
-|-------|-------------|
-| `/comet` | Main entry — auto-detects phase and dispatches to sub-commands |
-| `/comet-open` | Phase 1: Open a change (proposal, design, task breakdown) |
-| `/comet-design` | Phase 2: Deep design (brainstorming, Design Doc) |
-| `/comet-build` | Phase 3: Plan and build (implementation plan, code commits) |
-| `/comet-verify` | Phase 4: Verify and finish (testing, verification report) |
-| `/comet-archive` | Phase 5: Archive (delta spec sync, status annotation) |
-| `/comet-hotfix` | Preset: Quick bug fix (skips brainstorming) |
-| `/comet-tweak` | Preset: Small change (skips brainstorming and full plan) |
+| Skill            | Description                                                    |
+| ---------------- | -------------------------------------------------------------- |
+| `/comet`         | Main entry — auto-detects phase and dispatches to sub-commands |
+| `/comet-open`    | Phase 1: Open a change (proposal, design, task breakdown)      |
+| `/comet-design`  | Phase 2: Deep design (brainstorming, Design Doc)               |
+| `/comet-build`   | Phase 3: Plan and build (implementation plan, code commits)    |
+| `/comet-verify`  | Phase 4: Verify and finish (testing, verification report)      |
+| `/comet-archive` | Phase 5: Archive (delta spec sync, status annotation)          |
+| `/comet-hotfix`  | Preset: Quick bug fix (skips brainstorming)                    |
+| `/comet-tweak`   | Preset: Small change (skips brainstorming and full plan)       |
 
 </details>
 
@@ -226,13 +237,14 @@ After `comet init`, three groups of skills are installed to the selected platfor
 <details>
 <summary>View script list</summary>
 
-| Script | Purpose |
-|--------|---------|
-| `comet-guard.sh` | Phase transition guard — validates exit conditions, `--apply` auto-updates `.comet.yaml` |
-| `comet-handoff.sh` | Design handoff — generates deterministic context packages from OpenSpec artifacts with SHA256 tracing |
-| `comet-archive.sh` | One-command archive — validates state, syncs specs, moves to archive, updates status |
-| `comet-yaml-validate.sh` | Schema validator — validates `.comet.yaml` structure and field values |
-| `comet-state.sh` | Unified state management — init/set/get/check/scale, agents' exclusive YAML interface |
+| Script                   | Purpose                                                                                               |
+| ------------------------ | ----------------------------------------------------------------------------------------------------- |
+| `comet-env.sh`           | Script discovery helper — exports bundled script paths such as `COMET_GUARD`, `COMET_STATE`, `COMET_HANDOFF`, and `COMET_ARCHIVE` |
+| `comet-guard.sh`         | Phase transition guard — validates exit conditions, `--apply` auto-updates `.comet.yaml`              |
+| `comet-handoff.sh`       | Design handoff — generates deterministic context packages from OpenSpec artifacts with SHA256 tracing |
+| `comet-archive.sh`       | One-command archive — validates state, syncs specs, moves to archive, updates status                  |
+| `comet-yaml-validate.sh` | Schema validator — validates `.comet.yaml` structure and field values                                 |
+| `comet-state.sh`         | Unified state management — init/set/get/check/scale, agents' exclusive YAML interface                 |
 
 </details>
 
@@ -261,13 +273,13 @@ Development methodology: brainstorming, TDD, subagent-driven development, code r
 
 ### Five Phases
 
-| Phase | Command | Owner | Artifacts |
-|-------|---------|-------|-----------|
-| 1. Open | `/comet-open` | OpenSpec | proposal.md, design.md, tasks.md |
-| 2. Deep Design | `/comet-design` | Superpowers | Design Doc, delta spec |
-| 3. Plan & Build | `/comet-build` | Superpowers | Implementation plan, code commits |
-| 4. Verify & Finish | `/comet-verify` | Both | Verification report, branch handling |
-| 5. Archive | `/comet-archive` | OpenSpec | delta→main spec sync, archive |
+| Phase              | Command          | Owner       | Artifacts                            |
+| ------------------ | ---------------- | ----------- | ------------------------------------ |
+| 1. Open            | `/comet-open`    | OpenSpec    | proposal.md, design.md, tasks.md     |
+| 2. Deep Design     | `/comet-design`  | Superpowers | Design Doc, delta spec               |
+| 3. Plan & Build    | `/comet-build`   | Superpowers | Implementation plan, code commits    |
+| 4. Verify & Finish | `/comet-verify`  | Both        | Verification report, branch handling |
+| 5. Archive         | `/comet-archive` | OpenSpec    | delta→main spec sync, archive        |
 
 ### Core Principles
 
@@ -281,10 +293,10 @@ Development methodology: brainstorming, TDD, subagent-driven development, code r
 
 Comet uses a decoupled state architecture with separate YAML files:
 
-| File | Owner | Purpose |
-|------|-------|---------|
-| `.openspec.yaml` | OpenSpec | Spec lifecycle, change metadata |
-| `.comet.yaml` | Comet | Workflow phase, execution mode, verification status |
+| File             | Owner    | Purpose                                             |
+| ---------------- | -------- | --------------------------------------------------- |
+| `.openspec.yaml` | OpenSpec | Spec lifecycle, change metadata                     |
+| `.comet.yaml`    | Comet    | Workflow phase, execution mode, verification status |
 
 All states and execution phases are updated via scripts, and each phase verifies that tasks are truly complete before advancing. Compared to storing complex state rules only in Skill text, this script-backed state machine gives Comet more reliable phase transitions, correct YAML, and easier breakpoint recovery; agents can read the current Spec situation through Comet's built-in commands.
 
@@ -367,6 +379,7 @@ your-project/
 │   ├── comet/SKILL.md
 │   │   └── scripts/
 │   │       ├── comet-guard.sh       # Phase transition guard (--apply auto-updates state)
+│   │       ├── comet-env.sh         # Script discovery helper
 │   │       ├── comet-handoff.sh     # Design handoff (OpenSpec → Superpowers context tracing)
 │   │       ├── comet-archive.sh     # One-command archive automation
 │   │       ├── comet-yaml-validate.sh # Schema validator
@@ -403,9 +416,16 @@ Track our development progress and upcoming features on the [Comet Roadmap](http
 
 [![Star History Chart](https://api.star-history.com/svg?repos=rpamis/comet&type=Date)](https://star-history.com/#rpamis/comet&Date)
 
+## Contributors
+
+<a href="https://github.com/rpamis/comet/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=rpamis/comet&max=999&columns=12&anon=1" />
+</a>
+
 ## License
 
-[MIT](LICENSE.md)
+[MIT](LICENSE)
 
 ## Reference
+
 [LINUX DO - 新的理想型社区](https://linux.do/)
