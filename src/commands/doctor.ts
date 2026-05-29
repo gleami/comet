@@ -31,6 +31,24 @@ const VALID_YAML_FIELDS = new Set([
   'verified_at',
 ]);
 
+function collectTopLevelYamlKeys(yamlContent: string): string[] {
+  const topLevelKeys: string[] = [];
+
+  for (const line of yamlContent.split(/\r?\n/u)) {
+    const trimmedLine = line.trim();
+    if (!trimmedLine || trimmedLine.startsWith('#')) continue;
+    if (/^\s/u.test(line)) continue;
+    if (trimmedLine.startsWith('- ')) continue;
+
+    const keyMatch = line.match(/^['"]?([A-Za-z0-9_-]+)['"]?\s*:/u);
+    if (keyMatch) {
+      topLevelKeys.push(keyMatch[1]);
+    }
+  }
+
+  return topLevelKeys;
+}
+
 async function checkOpenSpecCli(): Promise<CheckResult> {
   if (!isCommandAvailable('openspec')) {
     return {
@@ -181,14 +199,7 @@ async function checkCometYamlValidity(projectPath: string): Promise<CheckResult[
     if (!(await fileExists(yamlPath))) continue;
 
     const raw = await fs.readFile(yamlPath, 'utf-8');
-    const unknownFields: string[] = [];
-
-    for (const line of raw.split('\n')) {
-      const match = line.match(/^(\w[\w_]*):/);
-      if (match && !VALID_YAML_FIELDS.has(match[1])) {
-        unknownFields.push(match[1]);
-      }
-    }
+    const unknownFields = collectTopLevelYamlKeys(raw).filter((key) => !VALID_YAML_FIELDS.has(key));
 
     results.push(
       unknownFields.length === 0

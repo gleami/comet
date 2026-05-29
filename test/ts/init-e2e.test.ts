@@ -1,14 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import { promises as fs } from 'fs';
 import os from 'os';
 import path from 'path';
 
 vi.mock('child_process', () => ({
-  execSync: vi.fn(),
+  execFileSync: vi.fn(),
 }));
 
-const mockedExecSync = vi.mocked(execSync);
+const mockedExecFileSync = vi.mocked(execFileSync);
 
 vi.mock('@inquirer/prompts', () => ({
   select: vi.fn(),
@@ -22,11 +22,18 @@ async function readManifest() {
 }
 
 function mockExternalSuccess() {
-  mockedExecSync.mockImplementation((cmd: string | Buffer) => {
-    const s = typeof cmd === 'string' ? cmd : cmd.toString();
-    if (s.startsWith('which') || s.startsWith('where')) return Buffer.from('/usr/bin/openspec');
-    if (s.startsWith('openspec init')) return Buffer.from('ok');
-    if (s.startsWith('npx skills')) return Buffer.from('installed');
+  mockedExecFileSync.mockImplementation((command: unknown, args?: unknown) => {
+    const cmd = String(command);
+    const cmdArgs = Array.isArray(args) ? args.map((arg) => String(arg)) : [];
+    if ((cmd === 'which' || cmd === 'where') && cmdArgs[0] === 'openspec') {
+      return Buffer.from('/usr/bin/openspec');
+    }
+    if (cmd === 'openspec' && cmdArgs[0] === 'init') {
+      return Buffer.from('ok');
+    }
+    if ((cmd === 'npx' || cmd === 'npx.cmd') && cmdArgs[0] === 'skills') {
+      return Buffer.from('installed');
+    }
     return Buffer.from('');
   });
 }

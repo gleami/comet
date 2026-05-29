@@ -52,4 +52,53 @@ describe('doctor command', () => {
       status: 'pass',
     });
   });
+
+  it('only validates top-level keys in .comet.yaml', async () => {
+    const validChangeDir = path.join(tmpDir, 'openspec', 'changes', 'nested-valid');
+    await fs.mkdir(validChangeDir, { recursive: true });
+    await fs.writeFile(
+      path.join(validChangeDir, '.comet.yaml'),
+      [
+        'workflow: full',
+        'phase: verify',
+        'verify_result: pending',
+        'archived: false',
+        'verification_report:',
+        '  nested_key: value',
+        '',
+      ].join('\n'),
+    );
+
+    const invalidChangeDir = path.join(tmpDir, 'openspec', 'changes', 'top-level-invalid');
+    await fs.mkdir(invalidChangeDir, { recursive: true });
+    await fs.writeFile(
+      path.join(invalidChangeDir, '.comet.yaml'),
+      [
+        'workflow: full',
+        'phase: verify',
+        'unknown_root_field: true',
+        '',
+      ].join('\n'),
+    );
+
+    const log = vi.spyOn(console, 'log').mockImplementation(() => undefined);
+    let json = '';
+    try {
+      await doctorCommand(tmpDir, { json: true });
+      json = log.mock.calls.map((call) => call.join(' ')).join('\n');
+    } finally {
+      log.mockRestore();
+    }
+
+    const results = JSON.parse(json).results as Array<{ check: string; status: string; message: string }>;
+
+    expect(results.find((result) => result.check === '.comet.yaml: nested-valid')).toMatchObject({
+      status: 'pass',
+    });
+
+    expect(results.find((result) => result.check === '.comet.yaml: top-level-invalid')).toMatchObject({
+      status: 'fail',
+      message: expect.stringContaining('unknown_root_field'),
+    });
+  });
 });
