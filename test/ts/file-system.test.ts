@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -117,6 +117,18 @@ describe('file-system utils', () => {
     it('returns empty array for non-existent directory', async () => {
       const entries = await readDir(path.join(tmpDir, 'nope'));
       expect(entries).toEqual([]);
+    });
+
+    it('throws for non-ENOENT filesystem errors', async () => {
+      const readdirSpy = vi.spyOn(fs, 'readdir').mockRejectedValue(
+        Object.assign(new Error('permission denied'), { code: 'EACCES' }),
+      );
+
+      try {
+        await expect(readDir(tmpDir)).rejects.toThrow('permission denied');
+      } finally {
+        readdirSpy.mockRestore();
+      }
     });
   });
 });
