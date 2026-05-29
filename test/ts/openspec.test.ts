@@ -422,11 +422,16 @@ describe('openspec', () => {
 
     it('integrates with installOpenSpec for global scope with opencode tool', async () => {
       mockedExecSync.mockReturnValue(Buffer.from('ok'));
+      const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'comet-install-test-'));
+      const homedirSpy = vi.spyOn(os, 'homedir').mockReturnValue(tmpDir);
 
       const { installOpenSpec } = await import('../../src/core/openspec.js');
       const result = await installOpenSpec('/tmp/test', ['opencode', 'claude'], 'global');
 
       expect(result).toBe('installed');
+
+      homedirSpy.mockRestore();
+      fs.rmSync(tmpDir, { recursive: true, force: true });
     });
   });
 });

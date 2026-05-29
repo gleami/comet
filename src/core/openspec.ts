@@ -190,6 +190,7 @@ function migrateOpenCodeOpenSpecPaths(homeDir: string): void {
   ];
 
   for (const [srcDir, destDir, label] of migrations) {
+    if (srcDir === destDir) continue;
     if (!fs.existsSync(srcDir)) continue;
     try {
       const entries = fs.readdirSync(srcDir);
