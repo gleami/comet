@@ -46,7 +46,7 @@ Superpowers generates Spec documents after brainstorming, but these documents ty
 
 **Comet combines the strengths of both**, integrating the core workflow into 5 phases
 
-The main entry `/comet` supports current Spec state detection, suitable for long tasks — after closing your AI coding session midway, just `/comet continue` and Comet will automatically read the active Spec (lists multiple for selection), dynamically identify which phase is currently executing, and continue.
+The main entry `/comet` supports current Spec state detection, suitable for long tasks — after closing your AI coding session midway, just `/comet` and Comet will automatically read the active Spec (lists multiple for selection), dynamically identify which phase is currently executing, and continue.
 
 At the same time, Comet provides full Spec lifecycle management. During execution, it links OpenSpec change/spec artifacts with Superpowers design and planning documents, then automates handoff, state updates, validation, and archive sync so users do not have to repeatedly remind the Agent to keep documents synchronized and connected.
 
@@ -131,8 +131,6 @@ For platforms that use the generic `skills` CLI directly, you can install the Co
 ```bash
 npx skills add rpamis/comet
 ```
-
-This path is useful when `comet init` does not yet know about your platform. It may not perform the full CLI setup that `comet init` provides, such as installing OpenSpec/Superpowers for selected platforms or creating project working directories.
 
 ## Screenshots
 
