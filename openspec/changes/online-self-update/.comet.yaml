@@ -1,0 +1,16 @@
+workflow: full
+phase: build
+build_mode: null
+isolation: null
+verify_mode: null
+base_ref: 14189e137f77df5be469cf0f96e03126dd3a016b
+design_doc: docs/superpowers/specs/2026-05-31-online-self-update-design.md
+plan: docs/superpowers/plans/2026-05-31-online-self-update.md
+verify_result: pending
+verification_report: null
+branch_status: pending
+created_at: 2026-05-31
+verified_at: null
+archived: false
+handoff_context: openspec/changes/online-self-update/.comet/handoff/design-context.json
+handoff_hash: 6b36a9737edc8c9e2fda1a26e5e97e253ac4f74e3e9ec0adef72d96c04204fb9

@@ -4,9 +4,13 @@ import { initCommand } from '../commands/init.js';
 import { statusCommand } from '../commands/status.js';
 import { doctorCommand } from '../commands/doctor.js';
 import { updateCommand } from '../commands/update.js';
+import { performStartupCheck } from '../core/version-check.js';
 
 const require = createRequire(import.meta.url);
 const { version } = require('../../package.json');
+
+// Non-blocking startup version check
+performStartupCheck(version);
 
 const program = new Command();
 
@@ -62,6 +66,7 @@ program
   .command('update [path]')
   .description('Update comet skill files to latest version')
   .option('--json', 'Output as JSON')
+  .option('--check', 'Only check for updates, do not perform update')
   .addOption(new Option('--language <lang>', 'Language for skills').choices(['en', 'zh']))
   .addOption(new Option('--scope <scope>', 'Install scope').choices(['global', 'project']))
   .addOption(new Option('--skip-npm', 'Skip npm package self-update').hideHelp())

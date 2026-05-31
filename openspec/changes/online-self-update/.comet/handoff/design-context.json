@@ -1,0 +1,13 @@
+{
+  "change": "online-self-update",
+  "phase": "design",
+  "mode": "compact",
+  "canonical_spec": "openspec",
+  "generated_by": "comet-handoff.sh",
+  "context_hash": "6b36a9737edc8c9e2fda1a26e5e97e253ac4f74e3e9ec0adef72d96c04204fb9",
+  "files": [
+    { "path": "openspec/changes/online-self-update/proposal.md", "sha256": "032dc8f4d5a02854e4774969ede086e44de264d4cd2bda2a1a7961e42db53d90" },
+    { "path": "openspec/changes/online-self-update/design.md", "sha256": "9fbeef005f8cfb745f43e9fc78894a91b1562416a2568777cb986a02bd56b2d8" },
+    { "path": "openspec/changes/online-self-update/tasks.md", "sha256": "054eeb49ac1c3b110d058ac7187985ee31f5145d20856effe3008902e9a9f226" }
+  ]
+}

@@ -9,6 +9,7 @@ import { getBaseDir } from '../core/detect.js';
 import { copyCometSkillsForPlatform, getManifestSkills } from '../core/skills.js';
 import { PLATFORMS, getPlatformSkillsDir, type Platform } from '../core/platforms.js';
 import type { InstallScope } from '../core/types.js';
+import { checkForUpdateAndPersist, extractLatestChangelog } from '../core/version-check.js';
 
 const require = createRequire(import.meta.url);
 const { version } = require('../../package.json');
@@ -19,6 +20,7 @@ interface UpdateOptions {
   language?: string;
   scope?: InstallScope;
   skipNpm?: boolean;
+  check?: boolean;
 }
 
 type SkillLanguage = 'en' | 'zh';
@@ -182,6 +184,45 @@ export async function updateCommand(
 
   log(`\n  Comet Update v${version}\n`);
 
+  // --- Version check ---
+  const result = await checkForUpdateAndPersist(version);
+  if (result.error) {
+    log(`  Version check: ${result.error}`);
+    log('');
+  } else if (result.hasUpdate) {
+    log(`  Update available: v${result.currentVersion} → v${result.latestVersion}`);
+    const changelogPath = path.resolve(
+      path.dirname(fileURLToPath(import.meta.url)),
+      '..',
+      '..',
+      'CHANGELOG.md',
+    );
+    const section = await extractLatestChangelog(changelogPath);
+    if (section) {
+      log(`\n${section}\n`);
+    }
+  } else {
+    log(`  You're on the latest version (v${result.currentVersion}).`);
+    log('');
+  }
+
+  // --check mode: just check version and exit
+  if (options.check) {
+    if (options.json) {
+      console.log(
+        JSON.stringify(
+          {
+            version: { current: result.currentVersion, latest: result.latestVersion, hasUpdate: result.hasUpdate },
+            error: result.error,
+          },
+          null,
+          2,
+        ),
+      );
+    }
+    return;
+  }
+
   const packageScope = options.scope ?? (await detectCometPackageScope(projectPath));
   let npmStatus: 'updated' | 'failed' | 'skipped' = 'skipped';
   if (!options.skipNpm) {
@@ -206,6 +247,12 @@ export async function updateCommand(
       console.log(
         JSON.stringify(
           {
+            version: {
+              current: result.currentVersion,
+              latest: result.latestVersion,
+              hasUpdate: result.hasUpdate,
+              error: result.error,
+            },
             npm: {
               scope: options.skipNpm ? 'skipped' : packageScope,
               status: npmStatus,
@@ -267,6 +314,12 @@ export async function updateCommand(
     console.log(
       JSON.stringify(
         {
+          version: {
+            current: result.currentVersion,
+            latest: result.latestVersion,
+            hasUpdate: result.hasUpdate,
+            error: result.error,
+          },
           npm: {
             scope: options.skipNpm ? 'skipped' : packageScope,
             status: npmStatus,
