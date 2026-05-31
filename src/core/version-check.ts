@@ -1,6 +1,8 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 import os from 'os';
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
 
 const NPM_REGISTRY_URL = 'https://registry.npmjs.org/@rpamis/comet/latest';
 const FETCH_TIMEOUT_MS = 5000;
