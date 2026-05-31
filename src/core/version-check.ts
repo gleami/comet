@@ -45,9 +45,7 @@ function getConfigPath(): string {
  * Resolve the effective update check strategy.
  * Environment variable COMET_UPDATE_CHECK takes highest priority.
  */
-export function resolveStrategy(
-  fileStrategy: UpdateCheckStrategy,
-): UpdateCheckStrategy {
+export function resolveStrategy(fileStrategy: UpdateCheckStrategy): UpdateCheckStrategy {
   const env = process.env.COMET_UPDATE_CHECK;
   if (env === 'never' || env === 'daily' || env === 'always') {
     return env;
@@ -145,16 +143,19 @@ export async function fetchLatestVersion(): Promise<string> {
  * Compare two semver strings.
  * Returns -1 if v1 < v2, 0 if equal, 1 if v1 > v2.
  *
- * Supports standard x.y.z semver; shorter or longer suffixes compare
- * positionally, missing parts are treated as 0.
+ * Prerelease suffixes (e.g. "-beta.1") are stripped before comparison
+ * so that "0.3.5" and "0.3.5-beta.1" compare as equal on the numeric
+ * axis.  Shorter or longer suffixes compare positionally; missing
+ * parts are treated as 0.  Non-numeric segments default to 0.
  */
 export function compareVersions(v1: string, v2: string): -1 | 0 | 1 {
-  const parts1 = v1.split('.').map(Number);
-  const parts2 = v2.split('.').map(Number);
+  const strip = (v: string) => v.split('-')[0];
+  const parts1 = strip(v1).split('.').map(Number);
+  const parts2 = strip(v2).split('.').map(Number);
 
   for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
-    const a = parts1[i] || 0;
-    const b = parts2[i] || 0;
+    const a = Number.isFinite(parts1[i]) ? parts1[i] : 0;
+    const b = Number.isFinite(parts2[i]) ? parts2[i] : 0;
     if (a < b) return -1;
     if (a > b) return 1;
   }
@@ -186,7 +187,9 @@ export async function checkForUpdate(currentVersion: string): Promise<VersionChe
  * Check for update and auto-persist the check timestamp.
  * Returns the check result (for callers that need it).
  */
-export async function checkForUpdateAndPersist(currentVersion: string): Promise<VersionCheckResult> {
+export async function checkForUpdateAndPersist(
+  currentVersion: string,
+): Promise<VersionCheckResult> {
   const result = await checkForUpdate(currentVersion);
   if (!result.error) {
     await markUpdateCheckDone(result.latestVersion);
@@ -206,7 +209,9 @@ export async function performStartupCheck(currentVersion: string): Promise<void>
     const result = await checkForUpdateAndPersist(currentVersion);
     if (result.hasUpdate) {
       console.error(`\n  ╭─ Comet Update ───────────────────────────╮`);
-      console.error(`  │  New version available: v${result.currentVersion} → v${result.latestVersion}  │`);
+      console.error(
+        `  │  New version available: v${result.currentVersion} → v${result.latestVersion}  │`,
+      );
       console.error(`  │  Run 'comet update' to upgrade.           │`);
       console.error(`  ╰──────────────────────────────────────────╯\n`);
     }

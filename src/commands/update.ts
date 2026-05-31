@@ -203,7 +203,11 @@ export async function updateCommand(
       console.log(
         JSON.stringify(
           {
-            version: { current: result.currentVersion, latest: result.latestVersion, hasUpdate: result.hasUpdate },
+            version: {
+              current: result.currentVersion,
+              latest: result.latestVersion,
+              hasUpdate: result.hasUpdate,
+            },
             error: result.error,
           },
           null,
