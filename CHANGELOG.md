@@ -2,6 +2,68 @@
 
 All notable changes to @rpamis/comet will be documented in this file.
 
+## What's Changed [0.3.5] - 2026-05-29
+
+### Added
+
+- **Context compaction recovery (`--recover`)**: `comet-state check <name> <phase> --recover` outputs a structured recovery context, including phase status, field progress, task count, and recovery actions, used for agent context compression to quickly locate breakpoints and resume operations.
+- **Red Flags Anti-Rationalization List**: Added 5 red flag warnings to the main scheduling skill (making decisions for the user, skipping confirmation, replacing historical preferences, agreeing without objection, and passing without verification), helping the agent identify its own overreach tendencies.
+- **Uncertainty Degradation Principles**: Added SUGGESTION > WARNING > CRITICAL degradation rules to the verify skill. Only build failures, test failures, and security issues are marked CRITICAL; ambiguous issues must be downgraded.
+- **Anti-Automatic Selection Guardian**: Added naming and scope anti-automatic selection rules to the open skill. Name changes must be specified by the user or AskUserQuestion. Confirmation: The scope cannot be expanded or narrowed arbitrarily.
+- **File Existence Verification**: Before entering user confirmation, the open skill verifies that the proposal/design/tasks files are not empty, preventing empty files from skipping the check.
+- **Idempotency Description**: Idempotency descriptions have been added to all skill stages (open/design/build/verify), clarifying which operations can be safely retried and which fields require confirmation before skipping.
+
+### Changed
+
+- **AskUserQuestion Tool Clarification**: All 7 decision blocking points (open confirmation, brainstorming confirmation, build workflow, verify failure decision, spec drift handling, branch handling, upgrade conditions) are uniformly required to use the AskUserQuestion tool; plain text prompts are prohibited.
+- **Decision Points Expanded from 6 to 7**: The open stage proposal/design/tasks review confirmation is now the first decision point.
+- **Spec Drift Single-Choice Question Format**: Spec drift handling in the verify stage has been changed to an AskUserQuestion single-choice question (A/B/C). (Choose one of three), no longer implicit default option
+- **Completely synchronized Chinese and English skills**: The content, structure, and option format of the 7 Chinese skills and 7 English skills are completely aligned.
+
+### Fixed
+
+- **Crash due to unbound variables in `set -u`**: When `comet-state check --recover` is missing `tasks.md` during the build phase, the `pending` variable is not declared, causing the script to exit directly; this is fixed by moving the `local` declaration forward and adding an explicit branch `tasks.md MISSING` to the recovery action chain.
+- **Path truncation risk**: `field_status` using `${var%% *}` on `design_doc` may truncate paths containing spaces; changed to `${var% }` to only remove trailing spaces.
+- **Inconsistent reading style for optional fields**: `direct_override` uses `|| echo ""` while other optional fields use `|| true`; unified to `|| true` to be consistent with `cmd_scale`.
+
+### Tests
+
+- Added 8 `check --recover` and boundary test cases, covering five phases: open/build/verify/design/archive, as well as boundary scenarios such as missing tasks.md and all tasks completed.
+- Total number of tests increased from 34 to 42, all passed.
+
+## What's Changed [0.3.4] - 2026-05-29
+
+### Changed
+
+- **Command execution security**: Refactored all command execution in OpenSpec and Superpowers install paths from `spawn` with shell interpretation to `execFileSync`, eliminating shell injection surface and improving cross-platform reliability (#88bf487)
+
+### Fixed
+
+- **OpenSpec global install path for OpenCode**: `comet init --scope global` now migrates OpenSpec skills from the hardcoded `~/.opencode/` directory to `~/.config/opencode/` where OpenCode actually reads them, with a self-deletion guard when source and destination paths coincide (#46, @gleami)
+- **Windows command execution**: Added `shell` option to `execFileSync` calls on Windows so command shims (.cmd) resolve correctly
+- **Doctor `.comet.yaml` validation**: `comet doctor` now validates top-level keys instead of silently accepting unknown keys, and `readDir` errors other than ENOENT are no longer swallowed (@felamin)
+- **CI JSON parsing**: CI workflow parses command output by finding the first `{` character, preventing non-JSON prefix lines from breaking JSON extraction (@yicochen)
+- **CI warning output**: CI now only counts and prints warnings when a step actually fails, reducing noise in successful runs (@yicochen)
+- **Spawn stdio noise**: Changed `inherit` to `ignore` for non-interactive spawn stdio so OpenSpec/Superpowers installers don't print unrelated progress to the console (@yicochen)
+
+### Tests
+
+- Added coverage for OpenCode global OpenSpec path migration, self-deletion guard, and homedir mocking
+- Added doctor tests for `.comet.yaml` top-level key validation and non-ENOENT `readDir` error propagation
+- Fixed timeout for git-based test "uses plan base-ref to scale verification"
+
+### Docs
+
+- Improved README setup guidance with clearer installation instructions and collapsible reference panels (both English and Chinese) (@hepeng)
+- Added contributors wall to both README and README-zh (@Joechan11)
+
+### New Contributors
+* @felanny made their first contribution in #38
+* @Joechan11 made their first contribution in #44
+* @bevishe made their first contribution in #47
+* @kathy32 made their first contribution in #39
+* @gleami made their first contribution in #46
+
 ## What's Changed [0.3.3] - 2026-05-27
 
 ### Fixed
