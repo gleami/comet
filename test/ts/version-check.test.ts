@@ -230,12 +230,15 @@ describe('checkForUpdateAndPersist', () => {
   });
 
   it('does not throw when network is unavailable (returns error field)', async () => {
-    const result = await checkForUpdateAndPersist('0.3.5');
-    if (result.error) {
+    const fetchMock = vi.stubGlobal('fetch', () => {
+      throw new Error('Network unavailable');
+    });
+    try {
+      const result = await checkForUpdateAndPersist('0.3.5');
       expect(result.error).toBeTruthy();
       expect(result.hasUpdate).toBe(false);
-    } else {
-      expect(result.latestVersion).toBeTruthy();
+    } finally {
+      fetchMock.restore();
     }
   });
 });
