@@ -4,7 +4,6 @@ import os from 'os';
 import { promises as fs } from 'fs';
 import {
   compareVersions,
-  extractLatestChangelog,
   loadUpdateCheckConfig,
   saveUpdateCheckConfig,
   shouldCheckUpdate,
@@ -260,62 +259,5 @@ describe('performStartupCheck', () => {
 
   it('never throws (best-effort)', async () => {
     await expect(performStartupCheck('0.3.5')).resolves.toBeUndefined();
-  });
-});
-
-describe('extractLatestChangelog', () => {
-  let tmpDir: string;
-
-  beforeEach(async () => {
-    tmpDir = path.join(
-      os.tmpdir(),
-      `comet-vc-${Date.now()}-${Math.random().toString(36).slice(2)}`,
-    );
-    await fs.mkdir(tmpDir, { recursive: true });
-  });
-
-  afterEach(async () => {
-    await fs.rm(tmpDir, { recursive: true, force: true });
-  });
-
-  it('extracts the first changelog section', async () => {
-    const content = `# Changelog
-
-## What's Changed [0.4.0] - 2026-06-01
-
-### Added
-
-- **Online self-update**: Version check before update.
-
-### Fixed
-
-- **Bug fix**: Something.
-
-## What's Changed [0.3.5] - 2026-05-29
-
-### Added
-
-- Old feature.
-`;
-
-    const tmpFile = path.join(tmpDir, 'CHANGELOG.md');
-    await fs.writeFile(tmpFile, content, 'utf-8');
-
-    const result = await extractLatestChangelog(tmpFile);
-    expect(result).toBe(
-      `## What's Changed [0.4.0] - 2026-06-01
-
-### Added
-
-- **Online self-update**: Version check before update.
-
-### Fixed
-
-- **Bug fix**: Something.`,
-    );
-  });
-
-  it('returns null for unreadable file', async () => {
-    await expect(extractLatestChangelog(path.join(tmpDir, 'nonexistent.md'))).resolves.toBeNull();
   });
 });

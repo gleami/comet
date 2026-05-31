@@ -195,37 +195,6 @@ export async function checkForUpdateAndPersist(currentVersion: string): Promise<
 }
 
 /**
- * Extract the changelog entries for the latest version from CHANGELOG.md.
- * Returns the raw section text between the first two "## What's Changed" headers.
- * Returns null if the file can't be read or parsed.
- */
-export async function extractLatestChangelog(
-  changelogPath: string,
-): Promise<string | null> {
-  try {
-    const content = await fs.readFile(changelogPath, 'utf-8');
-
-    const sectionRegex = /^## What's Changed \[([^\]]+)\]/m;
-    const startMatch = content.match(sectionRegex);
-    if (!startMatch) return null;
-
-    const startIndex = startMatch.index!;
-    const restAfterStart = content.slice(startIndex + startMatch[0].length);
-
-    const nextSectionRegex = /^## What's Changed /m;
-    const nextMatch = restAfterStart.match(nextSectionRegex);
-
-    const endIndex = nextMatch
-      ? startIndex + startMatch[0].length + nextMatch.index!
-      : content.length;
-
-    return content.slice(startIndex, endIndex).trim();
-  } catch {
-    return null;
-  }
-}
-
-/**
  * Perform an automatic startup version check.
  * Best-effort: runs async, never throws, prints notification to stderr on update.
  */

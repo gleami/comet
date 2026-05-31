@@ -9,8 +9,16 @@ import { performStartupCheck } from '../core/version-check.js';
 const require = createRequire(import.meta.url);
 const { version } = require('../../package.json');
 
-// Non-blocking startup version check
-performStartupCheck(version);
+// Startup version check — skip when:
+//   - help/version requested (--help, -h, --version, -V)
+//   - command is update (already has its own check)
+//   - output is not a TTY (non-interactive/CI/piped)
+const rawArgs = process.argv.slice(2);
+const isHelpOrVersion = rawArgs.some((a) => ['--help', '-h', '--version', '-V'].includes(a));
+const isUpdate = rawArgs[0] === 'update';
+if (!isHelpOrVersion && !isUpdate && process.stdout.isTTY) {
+  performStartupCheck(version);
+}
 
 const program = new Command();
 

@@ -9,7 +9,7 @@ import { getBaseDir } from '../core/detect.js';
 import { copyCometSkillsForPlatform, getManifestSkills } from '../core/skills.js';
 import { PLATFORMS, getPlatformSkillsDir, type Platform } from '../core/platforms.js';
 import type { InstallScope } from '../core/types.js';
-import { checkForUpdateAndPersist, extractLatestChangelog } from '../core/version-check.js';
+import { checkForUpdateAndPersist } from '../core/version-check.js';
 
 const require = createRequire(import.meta.url);
 const { version } = require('../../package.json');
@@ -191,16 +191,7 @@ export async function updateCommand(
     log('');
   } else if (result.hasUpdate) {
     log(`  Update available: v${result.currentVersion} → v${result.latestVersion}`);
-    const changelogPath = path.resolve(
-      path.dirname(fileURLToPath(import.meta.url)),
-      '..',
-      '..',
-      'CHANGELOG.md',
-    );
-    const section = await extractLatestChangelog(changelogPath);
-    if (section) {
-      log(`\n${section}\n`);
-    }
+    log('');
   } else {
     log(`  You're on the latest version (v${result.currentVersion}).`);
     log('');
